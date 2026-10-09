@@ -1,0 +1,27 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# node
+node_modules/
+frontend/dist/
+
+# runtime data (keep the folders, ignore the contents)
+backend/data/uploads/*
+backend/data/chroma/*
+!backend/data/uploads/.gitkeep
+!backend/data/chroma/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

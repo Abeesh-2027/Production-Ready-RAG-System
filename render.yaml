@@ -1,0 +1,37 @@
+# Render Blueprint for the FastAPI backend.  https://render.com/docs/blueprint-spec
+#
+# IMPORTANT - persistence: ChromaDB writes to disk. A Render *free* web service has an
+# ephemeral filesystem, so indexed documents are lost whenever the service restarts,
+# redeploys or spins down. To keep documents, use a paid plan with a persistent disk
+# (as configured below). To try it on the free plan, change `plan` to `free` and delete
+# the `disk:` block - everything works, but you must re-upload documents after a restart.
+services:
+  - type: web
+    name: rag-chatbot-api
+    runtime: python
+    rootDir: backend
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    disk:
+      name: rag-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: OPENROUTER_API_KEY
+        sync: false            # set in the Render dashboard, never commit it
+      - key: OPENROUTER_MODEL
+        value: openai/gpt-4o-mini
+      - key: EMBEDDING_MODEL
+        value: openai/text-embedding-3-small
+      - key: CHROMA_PATH
+        value: /var/data/chroma
+      - key: UPLOAD_PATH
+        value: /var/data/uploads
+      - key: CORS_ORIGINS
+        sync: false            # your Vercel URL, e.g. https://my-rag-chatbot.vercel.app
+      - key: CORS_ORIGIN_REGEX
+        value: ""              # optional, e.g. https://my-rag-chatbot-.*\.vercel\.app for preview URLs
