@@ -1,12 +1,16 @@
 // Lists indexed documents with a delete button for each.
 export default function DocumentList({ documents, loading, onDelete, deletingId }) {
+  const documentList = Array.isArray(documents) ? documents : [];
+
   if (loading) return <p className="empty-note">Loading documents…</p>;
-  if (documents.length === 0) {
+
+  if (documentList.length === 0) {
     return <p className="empty-note">No documents yet. Upload one to start asking questions.</p>;
   }
+
   return (
     <ul className="doc-list">
-      {documents.map((doc) => (
+      {documentList.map((doc) => (
         <li className="doc-item" key={doc.document_id}>
           <div className="doc-info">
             <div className="doc-name" title={doc.filename}>
