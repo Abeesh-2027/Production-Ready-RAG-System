@@ -21,7 +21,7 @@ class Page:
 @dataclass
 class LoadedDocument:
     filename: str
-    file_type: str  # "pdf" | "docx" | "txt"
+    file_type: str  
     pages: list[Page]
 
     @property
@@ -29,9 +29,6 @@ class LoadedDocument:
         return sum(len(p.text) for p in self.pages)
 
 
-# --------------------------------------------------------------------------- #
-# Format-specific loaders
-# --------------------------------------------------------------------------- #
 def _load_pdf(path: Path) -> list[Page]:
     try:
         import fitz  # PyMuPDF
@@ -71,8 +68,6 @@ def _load_docx(path: Path) -> list[Page]:
 
 def _load_txt(path: Path) -> list[Page]:
     raw = path.read_bytes()
-    # UTF-16 is only guessed when its byte-order mark is present (otherwise almost any
-    # even-length byte string "decodes" as UTF-16 garbage). utf-8-sig strips a UTF-8 BOM.
     encodings = ["utf-8-sig", "latin-1"]
     if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
         encodings.insert(0, "utf-16")

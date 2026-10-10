@@ -35,7 +35,7 @@ class EchoGenerator:
     def complete(self, messages, temperature=None, max_tokens=None) -> str:
         self.calls.append(messages)
         user = messages[-1]["content"]
-        if "Latest question:" in user:  # query-rewrite call: return the question unchanged
+        if "Latest question:" in user:  
             return user.rsplit("Latest question:", 1)[1].strip()
         body = user.split("Content:", 1)[1].split("[Source", 1)[0].split("=== END", 1)[0].strip()
         return f"(offline stub answer) {body[:300]} [Source 1]"

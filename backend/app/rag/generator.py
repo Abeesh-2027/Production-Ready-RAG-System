@@ -34,7 +34,7 @@ class OpenRouterGenerator:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "X-Title": "RAG Chatbot",  # optional: shows up in OpenRouter's dashboard
+            "X-Title": "RAG Chatbot", 
         }
         try:
             resp = httpx.post(
@@ -50,7 +50,6 @@ class OpenRouterGenerator:
 
         try:
             body = resp.json()
-            # OpenRouter can return HTTP 200 with an error object inside.
             if "error" in body and not body.get("choices"):
                 raise GenerationError(f"OpenRouter error: {body['error'].get('message', body['error'])}")
             text = body["choices"][0]["message"]["content"]

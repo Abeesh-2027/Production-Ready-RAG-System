@@ -1,5 +1,3 @@
-// Shows where an answer came from: "[1] 📄 rag.pdf — Page 5".
-// The numbers match the [Source n] citations the model writes in its answer.
 export default function Sources({ sources }) {
   if (!sources || sources.length === 0) return null;
   return (

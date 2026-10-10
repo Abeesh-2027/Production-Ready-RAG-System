@@ -9,7 +9,7 @@ def chunk(cid, text, score, page=1):
 
 
 CANDIDATES = [
-    chunk("c1", "Our company was founded in 1999 and sells garden tools.", 0.62),            # vector likes it most
+    chunk("c1", "Our company was founded in 1999 and sells garden tools.", 0.62),           
     chunk("c2", "Reranking reorders retrieved chunks with a cross-encoder for precision.", 0.55),
     chunk("c3", "Vector databases store embeddings and support similarity search.", 0.50),
 ]
@@ -32,9 +32,9 @@ def test_reranker_empty_and_stopword_only():
 def test_context_filters_low_relevance_and_duplicates_and_limits():
     ranked = [
         chunk("a", "RAG retrieves documents then generates an answer from them.", 0.9),
-        chunk("b", "RAG retrieves documents then generates an answer from them.", 0.8),  # duplicate of a
+        chunk("b", "RAG retrieves documents then generates an answer from them.", 0.8),  
         chunk("c", "Embeddings map text to vectors.", 0.6),
-        chunk("d", "Totally unrelated trivia about bananas.", 0.05),                      # below threshold
+        chunk("d", "Totally unrelated trivia about bananas.", 0.05),                      
     ]
     for c in ranked:
         c.rerank_score = c.score

@@ -33,7 +33,6 @@ async def rag_error_handler(_: Request, exc: RagError) -> JSONResponse:
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(_: Request, exc: RequestValidationError) -> JSONResponse:
-    # Turn pydantic's verbose error list into one readable sentence.
     first = exc.errors()[0] if exc.errors() else {}
     field = ".".join(str(p) for p in first.get("loc", []) if p != "body")
     message = str(first.get("msg", "Invalid request")).removeprefix("Value error, ")

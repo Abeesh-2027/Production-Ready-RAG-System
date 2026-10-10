@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field, field_validator
 class ChatRequest(BaseModel):
     question: str = Field(..., max_length=4000)
     conversation_id: str | None = Field(default=None, max_length=100)
-    # Optional: restrict retrieval to specific documents.
     document_ids: list[str] | None = None
 
     @field_validator("question")
@@ -30,6 +29,4 @@ class ChatResponse(BaseModel):
     answer: str
     sources: list[Source]
     conversation_id: str
-    # The standalone question actually used for retrieval (after rewriting).
-    # Handy for debugging and shown nowhere by default.
     rewritten_question: str | None = None

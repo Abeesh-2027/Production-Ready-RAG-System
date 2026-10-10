@@ -62,12 +62,11 @@ def _words(n, prefix="w"):
 
 
 def test_chunker_respects_size_and_overlap():
-    text = "\n\n".join(_words(100, f"p{i}_") for i in range(10))  # 10 paragraphs x 100 words
+    text = "\n\n".join(_words(100, f"p{i}_") for i in range(10))  
     chunks = split_text(text, chunk_size=300, chunk_overlap=50)
     assert len(chunks) > 1
     for c in chunks:
-        assert len(c.split()) <= 300 + 50  # size + carried overlap
-    # overlap: the tail of chunk N reappears at the start of chunk N+1
+        assert len(c.split()) <= 300 + 50  
     tail = chunks[0].split()[-50:]
     assert chunks[1].split()[:50] == tail
 
@@ -78,7 +77,7 @@ def test_chunker_keeps_paragraphs_whole_when_they_fit():
 
 
 def test_chunker_splits_giant_paragraph_on_sentences():
-    para = " ".join(f"Sentence number {i} is here." for i in range(200))  # 1000 words, one paragraph
+    para = " ".join(f"Sentence number {i} is here." for i in range(200))  
     chunks = split_text(para, chunk_size=200, chunk_overlap=0)
     assert len(chunks) >= 5 and all(c.rstrip().endswith(".") for c in chunks)
 

@@ -14,15 +14,13 @@ class RetrievedChunk:
     chunk_id: str
     text: str
     metadata: dict
-    score: float                 # vector similarity (1 - cosine distance)
+    score: float                
     rerank_score: float | None = None  # filled in by the reranker
 
 
 class VectorStore:
     def __init__(self, path: Path, collection_name: str, embedding_model: str):
         try:
-            # Imported here (not at module top) so the lightweight dataclasses above can be
-            # used - and unit-tested - without loading ChromaDB.
             import chromadb
             from chromadb.config import Settings as ChromaSettings
 
@@ -39,14 +37,11 @@ class VectorStore:
 
         stored_model = (self._collection.metadata or {}).get("embedding_model")
         if stored_model and stored_model != embedding_model and self._collection.count() > 0:
-            # Guard against the classic bug: querying with a different model than
-            # the one used to index. Better to fail loudly than to return garbage.
             raise VectorStoreError(
                 f"The database was built with embedding model '{stored_model}' but EMBEDDING_MODEL is "
                 f"'{embedding_model}'. Restore the old model or delete {path} and re-upload documents."
             )
 
-    # ------------------------------------------------------------------ write
     def add_chunks(self, chunks: list[Chunk], embeddings: list[list[float]]) -> None:
         if len(chunks) != len(embeddings):
             raise VectorStoreError("Number of chunks and embeddings do not match.")
@@ -78,7 +73,6 @@ class VectorStore:
         except Exception as exc:
             raise VectorStoreError(f"Failed to delete the document: {exc}") from exc
 
-    # ------------------------------------------------------------------- read
     def search(
         self, query_embedding: list[float], top_k: int, document_ids: list[str] | None = None
     ) -> list[RetrievedChunk]:

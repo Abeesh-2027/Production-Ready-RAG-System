@@ -1,4 +1,3 @@
-// Lists indexed documents with a delete button for each.
 export default function DocumentList({ documents, loading, onDelete, deletingId }) {
   const documentList = Array.isArray(documents) ? documents : [];
 

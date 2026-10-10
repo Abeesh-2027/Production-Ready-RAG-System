@@ -3,8 +3,6 @@ import Message from "./Message.jsx";
 
 const SUGGESTIONS = ["Summarize this document", "What are the key points?"];
 
-// The conversation view: message list + input box. State lives in App so the
-// header buttons (New / Clear) can control it.
 export default function Chat({ messages, loading, hasDocuments, serverStatus, onSend, onRetry }) {
   const [input, setInput] = useState("");
   const endRef = useRef(null);
@@ -23,7 +21,7 @@ export default function Chat({ messages, loading, hasDocuments, serverStatus, on
   }
 
   function onKeyDown(e) {
-    // Enter sends, Shift+Enter inserts a newline.
+
     if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       submit();

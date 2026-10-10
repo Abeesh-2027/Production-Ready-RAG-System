@@ -114,8 +114,6 @@ def test_follow_up_uses_history_and_rewriter(tmp_path):
     pipe.clear_conversation(first.conversation_id)
     assert pipe.conversations.get_history(first.conversation_id) == []
 
-
-# ------------------------------------------------------------------ embedder / generator HTTP
 class _Resp:
     def __init__(self, status, body):
         self.status_code, self._body, self.text = status, body, str(body)

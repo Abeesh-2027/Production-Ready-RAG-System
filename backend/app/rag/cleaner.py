@@ -21,9 +21,6 @@ def clean_text(text: str) -> str:
 
     lines = [_SPACES.sub(" ", line).strip() for line in text.split("\n")]
 
-    # PDFs hard-wrap every line, so a single "\n" usually does NOT mean a new
-    # paragraph. A heuristic: a line that ends a sentence (or is very short, like
-    # a heading) starts a new paragraph after it; otherwise join with a space.
     paragraphs: list[str] = []
     current: list[str] = []
     for i, line in enumerate(lines):

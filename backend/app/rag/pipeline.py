@@ -34,7 +34,6 @@ class AnswerResult:
     sources: list[dict]
     conversation_id: str
     rewritten_question: str
-    # Intermediate results of every stage; used by scripts/demo_flow.py and tests.
     trace: dict = field(default_factory=dict)
 
 
@@ -56,7 +55,6 @@ class RagPipeline:
         self.rewriter = QueryRewriter(generator, settings.enable_query_rewrite)
         self.conversations = ConversationStore(max_turns=settings.max_history_turns)
 
-    # ------------------------------------------------------------ ingestion
     def ingest(self, path: Path, original_filename: str, document_id: str) -> IngestResult:
         s = self.settings
         loaded = load_document(path, original_filename)                       # 1. extract
@@ -76,7 +74,6 @@ class RagPipeline:
             characters=sum(len(t) for _, t in cleaned),
         )
 
-    # ------------------------------------------------------------- answering
     def ask(
         self, question: str, conversation_id: str | None = None, document_ids: list[str] | None = None
     ) -> AnswerResult:
@@ -88,17 +85,17 @@ class RagPipeline:
         if self.store.count() == 0:
             return AnswerResult(NO_DOCUMENTS_TEXT, [], conversation_id, question, trace)
 
-        rewritten = self.rewriter.rewrite(question, history)                    # query rewriting
+        rewritten = self.rewriter.rewrite(question, history)                   
         trace["rewritten_question"] = rewritten
 
-        candidates = self.retriever.retrieve(rewritten, document_ids)           # embed query + search
+        candidates = self.retriever.retrieve(rewritten, document_ids)           
         trace["retrieved"] = [_summary(c) for c in candidates]
 
-        reranked = self.reranker.rerank(rewritten, list(candidates))            # rerank
+        reranked = self.reranker.rerank(rewritten, list(candidates))            
         trace["reranker"] = self.reranker.name
         trace["reranked"] = [_summary(c) for c in reranked]
 
-        context = select_context(                                               # context selection
+        context = select_context(                                              
             reranked, s.final_k, s.min_relevance, s.duplicate_threshold, s.max_context_chars
         )
         trace["context"] = [_summary(c) for c in context]
@@ -106,15 +103,13 @@ class RagPipeline:
         if not context:
             return AnswerResult(NO_ANSWER_TEXT, [], conversation_id, rewritten, trace)
 
-        # Use the ORIGINAL question in the prompt (what the user actually asked);
-        # history lets the LLM resolve references on its own too.
-        messages = build_messages(question, context, history)                   # prompt
+        messages = build_messages(question, context, history)                   
         trace["messages"] = messages
-        answer = self.generator.complete(messages)                              # generate
+        answer = self.generator.complete(messages)                            
         trace["answer"] = answer
 
         self.conversations.add_turn(conversation_id, question, answer)
-        sources = [_source(c) for c in context]                                 # citations
+        sources = [_source(c) for c in context]                                 
         return AnswerResult(answer, sources, conversation_id, rewritten, trace)
 
     def clear_conversation(self, conversation_id: str) -> None:

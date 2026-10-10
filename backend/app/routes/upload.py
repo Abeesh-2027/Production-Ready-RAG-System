@@ -20,7 +20,7 @@ from app.schemas.document import DocumentInfo, DocumentList, UploadResponse
 
 router = APIRouter(tags=["documents"])
 
-_READ_CHUNK = 1024 * 1024  # read uploads 1 MB at a time so the size limit is enforced early
+_READ_CHUNK = 1024 * 1024  
 _DOC_ID = re.compile(r"^[a-f0-9]{32}$")
 
 
@@ -54,8 +54,6 @@ async def upload_document(
             f"Unsupported file type '{ext or 'unknown'}'. Allowed: {', '.join(supported_extensions())}."
         )
 
-    # Safe on-disk name: a random id + the validated extension. The user-supplied
-    # filename never touches the filesystem, so path traversal is impossible.
     document_id = uuid.uuid4().hex
     settings.upload_path.mkdir(parents=True, exist_ok=True)
     saved_path = settings.upload_path / f"{document_id}{ext}"
@@ -77,8 +75,7 @@ async def upload_document(
                 out.write(block)
         if size == 0:
             raise InvalidRequestError("The uploaded file is empty.")
-        # Indexing is blocking work (parsing + HTTP calls + disk). Run it in a worker
-        # thread so the event loop keeps serving /health and other requests meanwhile.
+
         result = await run_in_threadpool(pipeline.ingest, saved_path, display_name, document_id)
     except Exception:
         saved_path.unlink(missing_ok=True)  # never keep a file that failed to index
@@ -106,6 +103,6 @@ def delete_document(
     if not _DOC_ID.match(document_id):
         raise InvalidRequestError("Invalid document id.")
     removed = pipeline.store.delete_document(document_id)
-    for path in settings.upload_path.glob(f"{document_id}.*"):  # id is validated hex: safe glob
+    for path in settings.upload_path.glob(f"{document_id}.*"):  
         path.unlink(missing_ok=True)
     return {"status": "deleted", "document_id": document_id, "chunks_removed": removed}

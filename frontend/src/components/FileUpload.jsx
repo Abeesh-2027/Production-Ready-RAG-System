@@ -3,13 +3,12 @@ import { MAX_UPLOAD_MB, getErrorMessage, uploadDocument } from "../api.js";
 
 const ALLOWED = [".pdf", ".txt", ".docx"];
 
-// Drag-and-drop or click-to-browse upload with progress and status messages.
 export default function FileUpload({ onUploaded }) {
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState(null); // { kind: "info"|"success"|"error", text }
+  const [status, setStatus] = useState(null); 
 
   function validate(file) {
     const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();

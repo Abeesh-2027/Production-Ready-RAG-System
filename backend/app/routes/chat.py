@@ -10,8 +10,6 @@ router = APIRouter(tags=["chat"])
 
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, pipeline: RagPipeline = Depends(get_pipeline)) -> ChatResponse:
-    # A plain `def` route: FastAPI runs it in a worker thread, so the blocking
-    # HTTP calls to OpenRouter do not freeze the event loop.
     result = pipeline.ask(request.question, request.conversation_id, request.document_ids)
     return ChatResponse(
         answer=result.answer,

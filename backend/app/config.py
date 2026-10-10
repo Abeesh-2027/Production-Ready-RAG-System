@@ -46,23 +46,19 @@ def _list(name: str, default: str) -> list[str]:
 
 @dataclass(frozen=True)
 class Settings:
-    # OpenRouter
     openrouter_api_key: str = ""
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     openrouter_model: str = "openai/gpt-4o-mini"
     embedding_model: str = "openai/text-embedding-3-small"
     embedding_batch_size: int = 64
 
-    # Storage
     chroma_path: Path = Path("./data/chroma")
     upload_path: Path = Path("./data/uploads")
     collection_name: str = "documents"
 
-    # Chunking (in words)
     chunk_size: int = 800
     chunk_overlap: int = 150
 
-    # Retrieval
     top_k: int = 10
     final_k: int = 5
     reranker: str = "lexical"
@@ -71,20 +67,16 @@ class Settings:
     duplicate_threshold: float = 0.85
     max_context_chars: int = 12000
 
-    # Generation
     temperature: float = 0.2
     max_tokens: int = 1000
     request_timeout_seconds: float = 60.0
 
-    # Conversation
     enable_query_rewrite: bool = True
     max_history_turns: int = 6
 
-    # Uploads
     max_upload_mb: int = 15
     allowed_extensions: tuple[str, ...] = (".pdf", ".txt", ".docx")
 
-    # CORS
     cors_origins: list[str] = field(default_factory=lambda: ["http://localhost:5173"])
     cors_origin_regex: str = ""
 
