@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  API_URL,
   checkHealth,
   clearConversation,
   deleteDocument,
@@ -206,7 +207,7 @@ export default function App() {
 
             {serverStatus === "down" && (
               <div className="upload-status error" role="alert">
-                The server is not responding. Try again in a moment.
+                Cannot reach the backend at {API_URL}. If it is hosted on Render's free plan it may be waking up - retry in a minute, and check VITE_API_URL.
               </div>
             )}
 

@@ -2,16 +2,22 @@
 // it never calls OpenRouter and never sees the OpenRouter API key.
 import axios from "axios";
 
+// Make sure the base URL is absolute. A value like "my-api.onrender.com" (no https://)
+// would be treated as a RELATIVE path, so requests would go to the Vercel site itself
+// instead of the backend - which answers GET with index.html and POST with HTTP 405.
+function normalizeBaseUrl(raw) {
+  let url = (raw || "").trim().replace(/\/+$/, "");
+  if (url && !/^https?:\/\//i.test(url)) {
+    url = (/^(localhost|127\.0\.0\.1)/.test(url) ? "http://" : "https://") + url;
+  }
+  return url;
+}
 
-export const API_URL = (
-  import.meta.env.VITE_API_URL ||
-  "https://production-ready-rag-system.onrender.com"
-).replace(/\/+$/, "");
-
-export const MAX_UPLOAD_MB = Number(
-  import.meta.env.VITE_MAX_UPLOAD_MB || 15
+export const API_URL = normalizeBaseUrl(
+  import.meta.env.VITE_API_URL || "https://production-ready-rag-system.onrender.com"
 );
 
+export const MAX_UPLOAD_MB = Number(import.meta.env.VITE_MAX_UPLOAD_MB || 15);
 
 const client = axios.create({ baseURL: API_URL, timeout: 90_000 });
 
@@ -24,7 +30,13 @@ export function getErrorMessage(error) {
     const detail = error.response.data?.detail;
     if (typeof detail === "string") return detail;
     if (Array.isArray(detail) && detail[0]?.msg) return detail[0].msg;
-    return `Server error (${error.response.status}).`;
+    const status = error.response.status;
+    const where = `${error.config?.baseURL || ""}${error.config?.url || ""}`;
+    if (status === 405 || status === 404) {
+      // Non-JSON 404/405 almost always means the request hit the wrong server.
+      return `Server error (${status}) from ${where}. The frontend may be pointing at the wrong backend - check VITE_API_URL.`;
+    }
+    return `Server error (${status}).`;
   }
   if (error.request) {
     return "Cannot reach the server. Check your connection or try again shortly.";
@@ -35,6 +47,10 @@ export function getErrorMessage(error) {
 /** Wakes a sleeping backend (free Render instances sleep when idle). */
 export async function checkHealth() {
   const { data } = await client.get("/health", { timeout: 60_000 });
+  // A static host (e.g. Vercel) answers with HTML, not {"status":"ok"}.
+  if (data?.status !== "ok") {
+    throw new Error(`${API_URL} is not the RAG backend (unexpected /health response).`);
+  }
   return data;
 }
 
@@ -52,6 +68,9 @@ export async function uploadDocument(file, onProgress) {
 
 export async function listDocuments() {
   const { data } = await client.get("/documents");
+  if (!data || !Array.isArray(data.documents)) {
+    throw new Error(`${API_URL} did not return a document list - is it the RAG backend?`);
+  }
   return data.documents;
 }
 
