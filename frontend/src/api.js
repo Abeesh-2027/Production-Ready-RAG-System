@@ -2,7 +2,7 @@
 // it never calls OpenRouter and never sees the OpenRouter API key.
 import axios from "axios";
 
-export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
+export const API_URL = (import.meta.env.VITE_API_URL || "https://production-ready-rag-system.onrender.com").replace(/\/$/, "");
 export const MAX_UPLOAD_MB = Number(import.meta.env.VITE_MAX_UPLOAD_MB || 15);
 
 const client = axios.create({ baseURL: API_URL, timeout: 90_000 });
